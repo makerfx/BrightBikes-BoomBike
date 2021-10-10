@@ -177,6 +177,7 @@ int CheckButtonsChange() {
   return frtButtonStatus;
 }
 
+// runs a particular show, usually called from CheckButtonsChange()
 void RunShow(int showNum) {
   switch(showNum) {
     case 0:
@@ -210,7 +211,8 @@ void MainShow() {
         int bar_draw_height[barcount];
         int bar_start_time[barcount];
         int bar_draw_time[barcount];
-        int ShowRunTime = millis() + 60000;
+        int showLength = 30000;
+        int showRestart = millis() - 1;
 
         for (int i = 0; i < barcount; i++) {
           bar_start_height[i] = 0;
@@ -218,19 +220,25 @@ void MainShow() {
           bar_start_time[i] = millis();
           bar_draw_time[i] = millis() + random(randlo, randhi);
         }
-        scrollingLayer.setCursor(0, 0);
-        scrollingLayer.setTextColor(0xFFFF);
-        scrollingLayer.setTextSize(4);
-        scrollingLayer.start("BRIGHTBIKES BOOMBIKE", 1);
-        
-        while (millis() < ShowRunTime && CheckButtonsChange() == 0) {
+
+        while (CheckButtonsChange() == 0) {
+          if (showRestart < millis()){
+            showRestart = millis() + showLength;
+            
+            scrollingLayer.setCursor(0, 0);
+            scrollingLayer.setMode(wrapForward);
+            scrollingLayer.setTextColor(0xFFFF);
+            scrollingLayer.setTextSize(4);
+            scrollingLayer.start("BRIGHTBIKES BOOMBIKE", 1);
+          }
+          
           for (int i = 0; i < barcount; i++) {
             //color.red = (cos(.01*PI*(colorcount+100+(i*10)+((i%2)*100)))*90)+90;
             color.red = 0;
             color.green = (cos(.01*PI*(colorcount+133+(i*10)))*90)+90;
             color.blue = (cos(.01*PI*(colorcount+133+(i*10)))*40)+215;
             int bar_travel_to = map(millis(), bar_start_time[i], bar_draw_time[i], bar_start_height[i], bar_draw_height[i]); 
-            backgroundLayer.fillRectangle((matrix.getScreenWidth() / barcount) * i, bar_travel_to, (matrix.getScreenWidth() / barcount) * (i + 1), 0, color);
+            backgroundLayer.fillRectangle((matrix.getScreenWidth() / barcount) * i, bar_travel_to, (matrix.getScreenWidth() / barcount) * (i + 1), 64, color);
          
             if (millis() >= bar_draw_time[i]) {
               bar_start_height[i] = bar_travel_to;
@@ -246,6 +254,7 @@ void MainShow() {
 
           delay(drawrate);
         }
+        scrollingLayer.stop();
 
 }
 
