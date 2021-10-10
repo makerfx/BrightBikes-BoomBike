@@ -299,7 +299,9 @@ void GifShow(int showNum) {
         nextGIF = 1;
       }
     }
-    frtButtonStatus = 0;
+    if (millis() >= ShowRunTime) {
+      frtButtonStatus = 0;
+    }
 }
 
 // the loop() method runs over and over again,
