@@ -40,7 +40,6 @@
 #define SM_PANELTYPE_HUB75_64ROW_64COL_BRYANSCAN    10  // Bryan Added
 #define SM_PANELTYPE_HUB75_64ROW_256COL_BRYANSCAN   11  // Bryan Added
 
-
 #define SMARTMATRIX_HUB75_32ROW_MOD16SCAN           SM_PANELTYPE_HUB75_32ROW_MOD16SCAN
 #define SMARTMATRIX_HUB75_16ROW_MOD8SCAN            SM_PANELTYPE_HUB75_16ROW_MOD8SCAN
 #define SMARTMATRIX_HUB75_64ROW_MOD32SCAN           SM_PANELTYPE_HUB75_64ROW_MOD32SCAN
@@ -54,6 +53,7 @@
 #define SMARTMATRIX_HUB75_64ROW_64COL_BRYANSCAN     SM_PANELTYPE_HUB75_64ROW_64COL_BRYANSCAN  // Bryan Added
 #define SMARTMATRIX_HUB75_64ROW_256COL_BRYANSCAN    SM_PANELTYPE_HUB75_64ROW_256COL_BRYANSCAN  // Bryan Added
 
+// Last two parameters added
 #define CONVERT_PANELTYPE_TO_MATRIXPANELHEIGHT(x)   ((x == SMARTMATRIX_HUB75_32ROW_MOD16SCAN ? 32 : 0) | \
                                                     (x == SMARTMATRIX_HUB75_16ROW_MOD8SCAN ? 16 : 0) | \
                                                     (x == SMARTMATRIX_HUB75_16ROW_32COL_MOD2SCAN ? 16 : 0) | \
@@ -64,9 +64,9 @@
                                                     (x == SMARTMATRIX_HUB75_16ROW_32COL_MOD4SCAN_V2 ? 16 : 0) | \
                                                     (x == SMARTMATRIX_HUB75_2ROW_MOD1SCAN ? 2 : 0) | \
                                                     (x == SMARTMATRIX_HUB75_64ROW_MOD32SCAN ? 64 : 0) | \
-                                                    (x == SMARTMATRIX_HUB75_64ROW_64COL_BRYANSCAN ? 64 : 0) | \ // Bryan Add
-                                                    (x == SMARTMATRIX_HUB75_64ROW_256COL_BRYANSCAN ? 64 : 0)) // Bryan Add
-
+                                                    (x == SMARTMATRIX_HUB75_64ROW_64COL_BRYANSCAN ? 64 : 0) | \
+                                                    (x == SMARTMATRIX_HUB75_64ROW_256COL_BRYANSCAN ? 64 : 0))
+// Last two parameters added
 #define CONVERT_PANELTYPE_TO_MATRIXROWPAIROFFSET(x) ((x == SMARTMATRIX_HUB75_32ROW_MOD16SCAN ? 16 : 0) | \
                                                     (x == SMARTMATRIX_HUB75_16ROW_MOD8SCAN ? 8 : 0) | \
                                                     (x == SMARTMATRIX_HUB75_16ROW_32COL_MOD2SCAN ? 8 : 0) | \
@@ -77,9 +77,9 @@
                                                     (x == SMARTMATRIX_HUB75_16ROW_32COL_MOD4SCAN_V2 ? 8 : 0) | \
                                                     (x == SMARTMATRIX_HUB75_2ROW_MOD1SCAN ? 1 : 0) | \
                                                     (x == SMARTMATRIX_HUB75_64ROW_MOD32SCAN ? 32 : 0) | \
-                                                    (x == SMARTMATRIX_HUB75_64ROW_64COL_BRYANSCAN ? 32 : 0) | \ // Bryan Add
-                                                    (x == SMARTMATRIX_HUB75_64ROW_256COL_BRYANSCAN ? 32 : 0)) // Bryan Add
-
+                                                    (x == SMARTMATRIX_HUB75_64ROW_64COL_BRYANSCAN ? 32 : 0) | \
+                                                    (x == SMARTMATRIX_HUB75_64ROW_256COL_BRYANSCAN ? 32 : 0))
+// Last two parameters added
 #define CONVERT_PANELTYPE_TO_MATRIXSCANMOD(x)  ((x == SMARTMATRIX_HUB75_32ROW_MOD16SCAN ? 16 : 0) | \
                                                     (x == SMARTMATRIX_HUB75_16ROW_MOD8SCAN ? 8 : 0) | \
                                                     (x == SMARTMATRIX_HUB75_16ROW_32COL_MOD2SCAN ? 2 : 0) | \
@@ -90,9 +90,9 @@
                                                     (x == SMARTMATRIX_HUB75_16ROW_32COL_MOD4SCAN_V2 ? 4 : 0) | \
                                                     (x == SMARTMATRIX_HUB75_2ROW_MOD1SCAN ? 1 : 0) | \
                                                     (x == SMARTMATRIX_HUB75_64ROW_MOD32SCAN ? 32 : 0) | \
-                                                    (x == SMARTMATRIX_HUB75_64ROW_64COL_BRYANSCAN ? 16 : 0) | \ // Bryan Add
-                                                    (x == SMARTMATRIX_HUB75_64ROW_256COL_BRYANSCAN ? 16 : 0)) // Bryan Add
-
+                                                    (x == SMARTMATRIX_HUB75_64ROW_64COL_BRYANSCAN ? 16 : 0) | \
+                                                    (x == SMARTMATRIX_HUB75_64ROW_256COL_BRYANSCAN ? 16 : 0))
+// Last two parameters added
 #define CONVERT_PANELTYPE_TO_MATRIXPANELWIDTH(x)  ((x == SMARTMATRIX_HUB75_32ROW_MOD16SCAN ? DEFAULT_PANEL_WIDTH_FOR_LINEAR_PANELS : 0) | \
                                                     (x == SMARTMATRIX_HUB75_16ROW_MOD8SCAN ? DEFAULT_PANEL_WIDTH_FOR_LINEAR_PANELS : 0) | \
                                                     (x == SMARTMATRIX_HUB75_16ROW_32COL_MOD2SCAN ? 32 : 0) | \
@@ -103,8 +103,8 @@
                                                     (x == SMARTMATRIX_HUB75_16ROW_32COL_MOD4SCAN_V2 ? 32 : 0) | \
                                                     (x == SMARTMATRIX_HUB75_2ROW_MOD1SCAN ? DEFAULT_PANEL_WIDTH_FOR_LINEAR_PANELS : 0) | \
                                                     (x == SMARTMATRIX_HUB75_64ROW_MOD32SCAN ? DEFAULT_PANEL_WIDTH_FOR_LINEAR_PANELS : 0) | \
-                                                    (x == SMARTMATRIX_HUB75_64ROW_64COL_BRYANSCAN ? DEFAULT_PANEL_WIDTH_FOR_LINEAR_PANELS : 0) | \ // Bryan Add
-                                                    (x == SMARTMATRIX_HUB75_64ROW_256COL_BRYANSCAN ? DEFAULT_PANEL_WIDTH_FOR_LINEAR_PANELS : 0)) // Bryan Add
+                                                    (x == SMARTMATRIX_HUB75_64ROW_64COL_BRYANSCAN ? DEFAULT_PANEL_WIDTH_FOR_LINEAR_PANELS : 0) | \
+                                                    (x == SMARTMATRIX_HUB75_64ROW_256COL_BRYANSCAN ? DEFAULT_PANEL_WIDTH_FOR_LINEAR_PANELS : 0))
 
 #define MATRIX_PANEL_HEIGHT (CONVERT_PANELTYPE_TO_MATRIXPANELHEIGHT(panelType))
 #define MATRIX_STACK_HEIGHT (matrixHeight / MATRIX_PANEL_HEIGHT)
