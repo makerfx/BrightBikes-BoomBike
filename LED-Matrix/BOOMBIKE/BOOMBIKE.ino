@@ -6,6 +6,7 @@
     SmartMatrix Library
     AnimatedGif
     GifDecoder (Smartmatrix left this one out of the list)
+    MultiButton
   The SmartMatrix library is also modified to include a panel mapping for the 4x 64x64 display
   setup for the BoomBike.
 
@@ -23,6 +24,7 @@
 // GIF Playback Includes
 #include <SD.h>
 #include <GifDecoder.h>
+#include <PinButton.h>
 #include "FilenameFunctions.h"
 #define DISPLAY_TIME_SECONDS 10
 #define NUMBER_FULL_CYCLES   100
@@ -56,11 +58,20 @@ SMARTMATRIX_ALLOCATE_INDEXED_LAYER(indexedLayer, kMatrixWidth, kMatrixHeight, CO
 const int defaultBrightness = (100*255)/100;        // full (100%) brightness
 const int defaultScrollOffset = 6;
 const rgb24 defaultBackgroundColor = {0x00, 0x00, 0x33};
+
 const int ledPin = 13;
+PinButton frtButton0(33);
+PinButton frtButton1(34);
+PinButton frtButton2(35);
+PinButton frtButton3(36);
+PinButton frtButton4(37);
+PinButton frtButton5(38);
+PinButton frtButton6(39);
 
 GifDecoder<kMatrixWidth, kMatrixHeight, 12> decoder;
 #define SD_CS BUILTIN_SDCARD
-#define GIF_DIRECTORY "/gifs/"
+
+const char gifDirs[8][7] = { "/gif0/", "/gif1/", "/gif2/", "/gif3/", "/gif4/", "/gif5/", "/gif6/" };
 
 int num_files;
 
@@ -78,7 +89,7 @@ void drawPixelCallback(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t
 
 //    *************BoomBike Variables******************     
 
-
+static int frtButtonStatus = 0;
 
 
 
@@ -86,7 +97,7 @@ void drawPixelCallback(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t
 void setup() {
   // initialize the digital pin as an output.
   pinMode(ledPin, OUTPUT);
-
+  
   decoder.setScreenClearCallback(screenClearCallback);
   decoder.setUpdateScreenCallback(updateScreenCallback);
   decoder.setDrawPixelCallback(drawPixelCallback);
@@ -114,54 +125,195 @@ void setup() {
     while(1);
   }
 
-  // Determine how many animated GIF files exist
-  num_files = enumerateGIFFiles(GIF_DIRECTORY, true);
-  if(num_files < 0) {
-    Serial.println("No gifs directory");
-    while(1);
-  }
 
-  // If GIF folder is empty
-  if(!num_files) {
-    Serial.println("Empty gifs directory");
-    while(1);
+  // folder check is commented out due to new structure of multiple folders, add in later?
+
+  /*
+    // Determine how many animated GIF files exist
+    num_files = enumerateGIFFiles(GIF_DIRECTORY, true);
+    if(num_files < 0) {
+      Serial.println("No gifs directory");
+      while(1);
+    }
+
+    // If GIF folder is empty
+    if(!num_files) {
+      Serial.println("Empty gifs directory");
+      while(1);
+    }
+  */
+}
+
+// Function to check status of all buttons, and return most recent button pressed.
+int CheckButtonsChange() {
+  frtButton0.update();
+  if (frtButton0.isClick()) {
+    frtButtonStatus = 0;
+  }
+  frtButton1.update();
+  if (frtButton1.isClick()) {
+    frtButtonStatus = 1;
+  }
+  frtButton2.update();
+  if (frtButton2.isClick()) {
+    frtButtonStatus = 2;
+  }
+  frtButton3.update();
+  if (frtButton3.isClick()) {
+    frtButtonStatus = 3;
+  }
+  frtButton4.update();
+  if (frtButton4.isClick()) {
+    frtButtonStatus = 4;
+  }
+  frtButton5.update();
+  if (frtButton5.isClick()) {
+    frtButtonStatus = 5;
+  }
+  frtButton6.update();
+  if (frtButton6.isClick()) {
+    frtButtonStatus = 6;
+  }
+  return frtButtonStatus;
+}
+
+void RunShow(int showNum) {
+  switch(showNum) {
+    case 0:
+      MainShow();
+      break;
+    case 1:  // remaining cases all use Gif playback
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+      GifShow(showNum);
+      break;
+    default:
+      frtButtonStatus = 0;
+      MainShow();
   }
 }
 
-// Set various shows / effects to play here. they will run in order if enabled.
-// First variable is enable / Disable, second variable is runtime for show.
-#define ENAB_RECTANGLE_BRYAN    1
-#define TIME_RECTANGLE_BRYAN    10000
+void MainShow() {
 
-#define ENAB_MOVINGBARS_BRYAN   1
-#define TIME_MOVINGBARS_BRYAN   20000
+        int drawrate = 20;
+        int barcount = 128;
+        int randhi = 700;
+        int randlo = 300;
+        int textReplay = 15000;
 
-#define ENAB_GIF_PLAYBACK       1
-#define TIME_GIF_PLAYBACK       40000
+        rgb24 color;
+        int colorcount = 0;
+        int bar_start_height[barcount];
+        int bar_draw_height[barcount];
+        int bar_start_time[barcount];
+        int bar_draw_time[barcount];
+        int ShowRunTime = millis() + 60000;
 
-#define ENAB_EMPTY              0
-#define TIME_EMPTY              0
+        for (int i = 0; i < barcount; i++) {
+          bar_start_height[i] = 0;
+          bar_draw_height[i] = random(0, matrix.getScreenHeight());
+          bar_start_time[i] = millis();
+          bar_draw_time[i] = millis() + random(randlo, randhi);
+        }
+        scrollingLayer.setCursor(0, 0);
+        scrollingLayer.setTextColor(0xFFFF);
+        scrollingLayer.setTextSize(4);
+        scrollingLayer.start("BRIGHTBIKES BOOMBIKE", 1);
+        
+        while (millis() < ShowRunTime && CheckButtonsChange() == 0) {
+          for (int i = 0; i < barcount; i++) {
+            //color.red = (cos(.01*PI*(colorcount+100+(i*10)+((i%2)*100)))*90)+90;
+            color.red = 0;
+            color.green = (cos(.01*PI*(colorcount+133+(i*10)))*90)+90;
+            color.blue = (cos(.01*PI*(colorcount+133+(i*10)))*40)+215;
+            int bar_travel_to = map(millis(), bar_start_time[i], bar_draw_time[i], bar_start_height[i], bar_draw_height[i]); 
+            backgroundLayer.fillRectangle((matrix.getScreenWidth() / barcount) * i, bar_travel_to, (matrix.getScreenWidth() / barcount) * (i + 1), 0, color);
+         
+            if (millis() >= bar_draw_time[i]) {
+              bar_start_height[i] = bar_travel_to;
+              bar_draw_height[i] = random(0, matrix.getScreenHeight());
+              bar_start_time[i] = millis();
+              bar_draw_time[i] = millis() + random(randlo, randhi);
+            }
+          }
 
+          backgroundLayer.swapBuffers();
+          backgroundLayer.fillScreen(defaultBackgroundColor);
+          colorcount += 1;
+
+          delay(drawrate);
+        }
+
+}
+
+void GifShow(int showNum) {
+
+    static int index = 0;
+    int nextGIF = 1;
+
+    int ShowRunTime = millis() + 60000; // Length of the show
+    num_files = enumerateGIFFiles(gifDirs[showNum], true);
+    
+
+    while (millis() < ShowRunTime && CheckButtonsChange() == showNum ) {
+      // programming set up to allow multiple Gifs in a folder to be played back during a "show"
+      if(decoder.getCycleNumber() > 0) { 
+          nextGIF = 1;
+      }
+
+      if(nextGIF) {
+        nextGIF = 0;
+        // gifDirs added for multiple option / button folders response
+        if (openGifFilenameByIndex(gifDirs[showNum], index) >= 0) {
+
+
+            // start decoding, skipping to the next GIF if there's an error
+            if(decoder.startDecoding() < 0) {
+                nextGIF = 1;
+                return;
+            }
+
+        }
+
+        // get the index for the next pass through
+        if (++index >= num_files) {
+            index = 0;
+        }
+
+      }
+
+      if(decoder.decodeFrame() < 0) {
+        // There's an error with this GIF, go to the next one
+        nextGIF = 1;
+      }
+    }
+    frtButtonStatus = 0;
+}
 
 // the loop() method runs over and over again,
 // as long as the board has power
+
 void loop() {
-    int i, j;
-    unsigned long currentMillis;
 
     // clear screen
     backgroundLayer.fillScreen(defaultBackgroundColor);
     backgroundLayer.swapBuffers();
 
+    // Run the show!
+    RunShow(CheckButtonsChange());    
 
+}
 
 //*********************************************************************************************************************
-//*************************************** SHOWS / EFFECTS *************************************************************
+//*************************************** OLD STUFF *******************************************************************
 //*********************************************************************************************************************
 //*********************************************************************************************************************
 
 
-
+/*
 #if (ENAB_RECTANGLE_BRYAN == 1)
   {
 
@@ -187,121 +339,4 @@ void loop() {
 
   }
 #endif
-
-#if (ENAB_MOVINGBARS_BRYAN == 1)
-  {
-
-        int drawrate = 20;
-        int barcount = 128;
-        int randhi = 700;
-        int randlo = 300;
-        int textReplay = 15000;
-
-        rgb24 color;
-        int colorcount = 0;
-        int bar_start_height[barcount];
-        int bar_draw_height[barcount];
-        int bar_start_time[barcount];
-        int bar_draw_time[barcount];
-        int ShowRunTime = millis() + TIME_MOVINGBARS_BRYAN;
-
-        for (i = 0; i < barcount; i++) {
-          bar_start_height[i] = 0;
-          bar_draw_height[i] = random(0, matrix.getScreenHeight());
-          bar_start_time[i] = millis();
-          bar_draw_time[i] = millis() + random(randlo, randhi);
-        }
-        scrollingLayer.setCursor(0, 0);
-        scrollingLayer.setTextColor(0xFFFF);
-        scrollingLayer.setTextSize(4);
-        scrollingLayer.start("BRIGHTBIKES BOOMBIKE", 1);
-        
-        while (millis() < ShowRunTime) {
-          for (i = 0; i < barcount; i++) {
-            //color.red = (cos(.01*PI*(colorcount+100+(i*10)+((i%2)*100)))*90)+90;
-            color.red = 0;
-            color.green = (cos(.01*PI*(colorcount+133+(i*10)))*90)+90;
-            color.blue = (cos(.01*PI*(colorcount+133+(i*10)))*40)+215;
-            int bar_travel_to = map(millis(), bar_start_time[i], bar_draw_time[i], bar_start_height[i], bar_draw_height[i]); 
-            backgroundLayer.fillRectangle((matrix.getScreenWidth() / barcount) * i, bar_travel_to, (matrix.getScreenWidth() / barcount) * (i + 1), 0, color);
-         
-            if (millis() >= bar_draw_time[i]) {
-              bar_start_height[i] = bar_travel_to;
-              bar_draw_height[i] = random(0, matrix.getScreenHeight());
-              bar_start_time[i] = millis();
-              bar_draw_time[i] = millis() + random(randlo, randhi);
-            }
-          }
-
-          backgroundLayer.swapBuffers();
-          backgroundLayer.fillScreen(defaultBackgroundColor);
-          colorcount += 1;
-
-          delay(drawrate);
-        }
-        
-  }
-#endif
-
-
-    // "Drawing Rectangles"
-#if (ENAB_GIF_PLAYBACK == 1)
-  {
-    static unsigned long displayStartTime_millis;
-    static int nextGIF = 1;     // we haven't loaded a GIF yet on first pass through, make sure we do that
-
-    unsigned long now = millis();
-
-    static int index = 0;
-
-    int ShowRunTime = millis() + TIME_GIF_PLAYBACK;
-
-    while (millis() < ShowRunTime) {
-      Serial.println("Loop");
-
-
-      // default behavior is to play the gif for DISPLAY_TIME_SECONDS or for NUMBER_FULL_CYCLES, whichever comes first
-      if(decoder.getCycleNumber() > 0) { 
-          nextGIF = 1;
-      }
-
-
-      if(nextGIF) {
-        nextGIF = 0;
-
-        if (openGifFilenameByIndex(GIF_DIRECTORY, index) >= 0) {
-            // Can clear screen for new animation here, but this might cause flicker with short animations
-            // matrix.fillScreen(COLOR_BLACK);
-            // matrix.swapBuffers();
-
-            // start decoding, skipping to the next GIF if there's an error
-            if(decoder.startDecoding() < 0) {
-                nextGIF = 1;
-                return;
-            }
-
-            // Calculate time in the future to terminate animation
-            displayStartTime_millis = now;
-        }
-
-        // get the index for the next pass through
-        if (++index >= num_files) {
-            index = 0;
-        }
-
-      }
-
-      if(decoder.decodeFrame() < 0) {
-        // There's an error with this GIF, go to the next one
-        nextGIF = 1;
-      }
-    }
-  }
-#endif
-    // "Drawing Round Rectangles"
-#if (ENAB_EMPTY == 1)
-    {
-      //Just an empty statement for future expansion
-    }
-#endif
-}
+*/
