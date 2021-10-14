@@ -21,8 +21,9 @@
 // Smartmatrix Includes
 #include <SmartMatrix.h>
 #include "ColorConverterLib.h"
+
 // GIF Playback Includes
-#include <SD.h>
+#include <SD.h> // also used by audio
 #include <GifDecoder.h>
 #include <PinButton.h>
 #include "FilenameFunctions.h"
@@ -85,18 +86,29 @@ void drawPixelCallback(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t
     backgroundLayer.drawPixel(x, y, {red, green, blue});
 }
 
-
-
 //    *************BoomBike Variables******************     
 
 static int frtButtonStatus = 0;
-
+uint8_t audVol = 0;
+const uint8_t audPin2 = 0;
+const uint8_t audPin4 = 1;
+const uint8_t audPin8 = 8;
+const uint8_t audPin16 = 21;
+const uint8_t audPin32 = 22;
+const uint8_t audPin64 = 23;
 
 
 // the setup() method runs once, when the sketch starts
 void setup() {
   // initialize the digital pin as an output.
   pinMode(ledPin, OUTPUT);
+  
+  pinMode(audPin2, INPUT);
+  pinMode(audPin4, INPUT);
+  pinMode(audPin8, INPUT);
+  pinMode(audPin16, INPUT);
+  pinMode(audPin32, INPUT);
+  pinMode(audPin64, INPUT);
   
   decoder.setScreenClearCallback(screenClearCallback);
   decoder.setUpdateScreenCallback(updateScreenCallback);
@@ -124,24 +136,6 @@ void setup() {
     Serial.println("No SD card");
     while(1);
   }
-
-
-  // folder check is commented out due to new structure of multiple folders, add in later?
-
-  /*
-    // Determine how many animated GIF files exist
-    num_files = enumerateGIFFiles(GIF_DIRECTORY, true);
-    if(num_files < 0) {
-      Serial.println("No gifs directory");
-      while(1);
-    }
-
-    // If GIF folder is empty
-    if(!num_files) {
-      Serial.println("Empty gifs directory");
-      while(1);
-    }
-  */
 }
 
 // Function to check status of all buttons, and return most recent button pressed.
@@ -205,6 +199,7 @@ void MainShow() {
         int randlo = 300;
         int textReplay = 15000;
 
+
         rgb24 color;
         int colorcount = 0;
         int bar_start_height[barcount];
@@ -249,7 +244,48 @@ void MainShow() {
           }
 
           backgroundLayer.swapBuffers();
-          backgroundLayer.fillScreen(defaultBackgroundColor);
+          
+          uint8_t audBit2 = 0;
+          uint8_t audBit4 = 0;
+          uint8_t audBit8 = 0;
+          uint8_t audBit16 = 0;
+          uint8_t audBit32 = 0;
+          uint8_t audBit64 = 0;
+          audVol = 0;
+
+          audBit2 = digitalReadFast(audPin2);
+          audBit4 = digitalReadFast(audPin4);
+          audBit8 = digitalReadFast(audPin8);
+          audBit16 = digitalReadFast(audPin16);
+          audBit32 = digitalReadFast(audPin32);
+          audBit64 = digitalReadFast(audPin64);
+
+          Serial.print(audBit64);
+          Serial.print(",");
+          Serial.print(audBit32);
+          Serial.print(",");
+          Serial.print(audBit16);
+          Serial.print(",");
+          Serial.print(audBit8);
+          Serial.print(",");
+          Serial.print(audBit4);
+          Serial.print(",");
+          Serial.println(audBit2);
+
+          audVol += audBit2;
+          audVol += 2*audBit4;
+          audVol += 4*audBit8;
+          audVol += 8*audBit16;
+          audVol += 16*audBit32;
+          audVol += 32*audBit64;           
+          
+          rgb24 bgcolor;
+          bgcolor.red = audVol*4;
+          bgcolor.green = 0;
+          bgcolor.blue = 0;
+          Serial.print("Audio:");
+          Serial.println(audVol);
+          backgroundLayer.fillScreen(bgcolor);
           colorcount += 1;
 
           delay(drawrate);
