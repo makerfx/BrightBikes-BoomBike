@@ -56,18 +56,18 @@ SMARTMATRIX_ALLOCATE_INDEXED_LAYER(indexedLayer, kMatrixWidth, kMatrixHeight, CO
 #include "colorwheel.c"
 #include "gimpbitmap.h"
 
-const int defaultBrightness = (100*255)/100;        // full (100%) brightness
+const int defaultBrightness = (50*255)/100;        // full (100%) brightness
 const int defaultScrollOffset = 6;
 const rgb24 defaultBackgroundColor = {0x00, 0x00, 0x33};
 
 const int ledPin = 13;
-PinButton frtButton0(33);
-PinButton frtButton1(34);
-PinButton frtButton2(35);
-PinButton frtButton3(36);
-PinButton frtButton4(37);
-PinButton frtButton5(38);
-PinButton frtButton6(39);
+PinButton frtButton0(14);
+PinButton frtButton1(15);
+PinButton frtButton2(16);
+PinButton frtButton3(17);
+PinButton frtButton4(18);
+PinButton frtButton5(19);
+PinButton frtButton6(20);
 
 GifDecoder<kMatrixWidth, kMatrixHeight, 12> decoder;
 #define SD_CS BUILTIN_SDCARD
@@ -299,7 +299,7 @@ void GifShow(int showNum) {
     static int index = 0;
     int nextGIF = 1;
 
-    int ShowRunTime = millis() + 60000; // Length of the show
+    int ShowRunTime = millis() + 120000; // Length of the show
     num_files = enumerateGIFFiles(gifDirs[showNum], true);
     
 
